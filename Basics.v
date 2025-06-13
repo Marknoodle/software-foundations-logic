@@ -1017,7 +1017,14 @@ Check ((0 + 1) + 1) : nat.
     Use [Fixpoint] and nested pattern matching.
 *)
 Fixpoint eqb (n m : nat) : bool :=
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  match n, m with
+  | 0, 0 => true
+  | 0, (S m') => false
+  | (S n'), 0 => false
+  | (S n'), (S m') => eqb n' m'
+  end.
+
+Compute eqb (S(S(O))) (S(S(O))).
 
 (** Similarly, the [leb] function tests whether its first argument is
     less than or equal to its second argument, yielding a boolean. *)
@@ -1031,7 +1038,12 @@ Fixpoint eqb (n m : nat) : bool :=
     Use [Fixpoint] and nested pattern matching.
 *)
 Fixpoint leb (n m : nat) : bool :=
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  match n, m with
+  | 0, 0 => true
+  | 0, (S m') => true
+  | (S n'), 0 => false
+  | (S n'), (S m') => leb n' m'
+  end.
 
 Example test_leb1:                leb 2 2 = true.
 Proof. simpl. reflexivity.  Qed.
@@ -1064,17 +1076,16 @@ Proof. simpl. reflexivity.  Qed.
     function.  (It can be done with just one previously defined
     function, but you can use two if you want.) *)
 
-Definition ltb (n m : nat) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition ltb (n m : nat) : bool := (S n) <=? m.
 
 Notation "x <? y" := (ltb x y) (at level 70) : nat_scope.
 
 Example test_ltb1:             (ltb 2 2) = false.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 Example test_ltb2:             (ltb 2 4) = true.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 Example test_ltb3:             (ltb 4 2) = false.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 (** [] *)
 
 (* ################################################################# *)
@@ -1106,7 +1117,8 @@ Example test_ltb3:             (ltb 4 2) = false.
 *)
 Theorem plus_O_n : forall n : nat, 0 + n = n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. simpl. reflexivity. 
+Qed.
 
 (** (You may notice that the above statement looks different if
     you look at the [.v] file in your IDE than it does if you view the
@@ -1176,7 +1188,8 @@ Proof.
 *)
 Theorem plus_1_l : forall n:nat, 1 + n = S n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. reflexivity. 
+Qed.
 
 (** 
     EXERCISE: Prove that 0 is a left annihilator for multiplication.
@@ -1184,7 +1197,7 @@ Proof.
 *)
 Theorem mult_0_l : forall n:nat, 0 * n = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. reflexivity. Qed.
 
 (** The [_l] suffix in the names of these theorems is
     pronounced "on the left." *)
@@ -1229,7 +1242,8 @@ Theorem plus_id_example : forall n m:nat,
            4) [reflexivity] to finish (m + m = m + m)
 *)
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m. intros H. rewrite <- H. reflexivity. 
+Qed.
 
 (** The first line of the proof moves the universally quantified
     variables [n] and [m] into the context.  The second moves the
@@ -1252,7 +1266,8 @@ Proof.
 Theorem plus_id_exercise : forall n m o : nat,
   n = m -> m = o -> n + m = m + o.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m o. intros H H'. rewrite <- H'. rewrite -> H. reflexivity.
+Qed.
 (** [] *)
 
 (** The [Admitted] command tells Coq that we want to skip trying
@@ -1297,7 +1312,8 @@ Check mult_n_Sm.
 Theorem mult_n_0_m_0 : forall p q : nat,
   (p * 0) + (q * 0) = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros p q. rewrite <- mult_n_O. rewrite <- mult_n_O. reflexivity.
+Qed.
 
 (** **** Exercise: 1 star, standard (mult_n_1)
 
@@ -1307,7 +1323,8 @@ Proof.
 Theorem mult_n_1 : forall p : nat,
   p * 1 = p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros p. rewrite <- mult_n_Sm. rewrite <- mult_n_O. rewrite plus_O_n. reflexivity. 
+Qed.
 
 (** [] *)
 
@@ -1356,8 +1373,11 @@ Abort.
 Theorem plus_1_neq_0 : forall n : nat,
   (n + 1) =? 0 = false.
 Proof.
-  (* FILL IN HERE *) Admitted.
-
+  intros n.
+  destruct n as [| n'] eqn:E.
+    - reflexivity.
+    - reflexivity.
+Qed.
 (** The [destruct] generates _two_ subgoals, which we must then
     prove, separately, in order to get Coq to accept the theorem.
 
@@ -1431,7 +1451,10 @@ Proof.
 Theorem negb_involutive : forall b : bool,
   negb (negb b) = b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b. destruct b eqn:E. 
+    - reflexivity.
+    - reflexivity.
+Qed.
 
 (** Note that the [destruct] here has no [as] clause because
     none of the subcases of the [destruct] need to bind any variables,
@@ -1518,7 +1541,14 @@ Qed.
 Theorem andb_true_elim2 : forall b c : bool,
   andb b c = true -> c = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b c. destruct b.
+    - destruct c.
+      + reflexivity.
+      + intros H. rewrite <- H. rewrite <- andb_commutative. reflexivity.
+    - destruct c.
+      + reflexivity.
+      + intros H. rewrite <- H. reflexivity.
+Qed.
 (** [] *)
 
 (** Before closing the chapter, let's mention one final
@@ -1559,8 +1589,12 @@ Qed.
 Theorem zero_nbeq_plus_1 : forall n : nat,
   0 =? (n + 1) = false.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros [|n].
+  - reflexivity. 
+  - reflexivity.
+Qed.
 (** [] *)
+
 
 (* ================================================================= *)
 (** ** More on Notation (Optional) *)
@@ -1689,12 +1723,46 @@ Definition manual_grade_for_negation_fn_applied_twice : option (nat*string) := N
     [destruct] and [rewrite], but destructing everything in sight is
     not the best way.) *)
 
+Theorem and_id : forall (b : bool), b = andb b true.
+Proof. intros b. destruct b.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
+Theorem and_false : forall (b : bool), false = andb b false.
+Proof. intros b. destruct b.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
+Theorem or_comm : forall (b c : bool), orb b c = orb c b.
+Proof. intros b c. destruct b.
+  - destruct c.
+    + reflexivity.
+    + reflexivity.
+  - destruct c.
+    + reflexivity.
+    + reflexivity.
+Qed.
+
+Theorem or_false_elim : forall (b : bool), orb b false = b.
+Proof. intros b. destruct b.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
 Theorem andb_eq_orb :
   forall (b c : bool),
   (andb b c = orb b c) ->
   b = c.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b c.
+  intros H.
+  destruct b. 
+    - rewrite and_id. rewrite andb_commutative. rewrite H. reflexivity.
+    - rewrite and_false with c. rewrite andb_commutative. rewrite H. 
+      rewrite or_comm. rewrite or_false_elim. reflexivity.
+Qed.
 
 (** [] *)
 
