@@ -6,6 +6,7 @@
 (** Before getting started on this chapter, we need to import
     all of our definitions from the previous chapter: *)
 
+(* Require Import LF.Basics. *)
 From LF Require Export Basics.
 
 (** For this [Require] command to work, Coq needs to be able to
@@ -298,6 +299,7 @@ Proof.
   intros n m. induction n as [| n' IHn'].
     - simpl. rewrite add_0_r. reflexivity.
     - simpl. rewrite IHn'. rewrite plus_n_Sm. reflexivity.
+Qed.
 
 Theorem add_assoc : forall n m p : nat,
   n + (m + p) = (n + m) + p.
@@ -335,7 +337,10 @@ Qed.
 Theorem eqb_refl : forall n : nat,
   (n =? n) = true.
 Proof.
-Admitted.
+  intros n. induction n as [| n' IHn'].
+    - reflexivity.
+    - simpl. rewrite IHn'. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (even_S)
@@ -343,14 +348,16 @@ Admitted.
     One inconvenient aspect of our definition of [even n] is the
     recursive call on [n - 2]. This makes proofs about [even n]
     harder when done by induction on [n], since we may need an
-    induction hypothesis about [n - 2]. The following lemma gives an
+    induction hypothesis about [n - 2]. The followi`ng lemma gives an
     alternative characterization of [even (S n)] that works better
     with induction: *)
 
 Theorem even_S : forall n : nat,
   even (S n) = negb (even n).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [| n' IHn'].
+    - reflexivity.
+    -  
 (** [] *)
 
 (* ################################################################# *)
